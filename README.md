@@ -40,6 +40,7 @@ Example of Portfolio CMS :
 ### Prerequisites
 - Node.js (v18+)
 - Firebase Project (configured with Auth and Firestore)
+- Add email-based auth in your Firebase and register a user.
 
 ### 1. Clone the Repository
 ```bash
