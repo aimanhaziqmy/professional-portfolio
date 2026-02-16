@@ -23,6 +23,10 @@ A professional, minimalist portfolio website built with **React**, **Tailwind CS
   - **CRUD Operations:** Create, Read, Update, and Delete for all sections.
   - **Ordering:** Custom ordering for Education and Publications to control display sequence.
   - **Live Previews:** Instant updates to the public site upon saving.
+ 
+Example of Portfolio CMS : 
+![CMS](https://i.postimg.cc/htZ0169X/content-management.png)
+![Skills](https://i.postimg.cc/0yXC0Fpb/content-management-skills-example.png)
 
 ## 🛠️ Tech Stack
 
