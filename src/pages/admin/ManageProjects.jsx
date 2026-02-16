@@ -5,10 +5,11 @@ import { Trash2, Plus, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const ManageProjects = () => {
-    const { documents: projects, error } = useCollection("projects", ["order", "asc"]);
-    const { addDocument, deleteDocument } = useFirestore("projects");
+    const { documents: projects, error } = useCollection("projects", ["order", "desc"]);
+    const { addDocument, deleteDocument, updateDocument } = useFirestore("projects");
 
     const [isAdding, setIsAdding] = useState(false);
+    const [editId, setEditId] = useState(null);
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -19,19 +20,52 @@ const ManageProjects = () => {
         order: 0
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         // Convert comma separated tech stack to array
         const techStackArray = formData.tech_stack.split(',').map(item => item.trim()).filter(item => item !== "");
 
-        addDocument({
+        const projectData = {
             ...formData,
             tech_stack: techStackArray,
             order: parseInt(formData.order)
-        });
+        };
+
+        if (editId) {
+            await updateDocument(editId, projectData);
+            setEditId(null);
+        } else {
+            await addDocument(projectData);
+        }
+
         setIsAdding(false);
+        resetForm();
+    };
+
+    const handleEdit = (project) => {
+        setEditId(project.id);
+        setFormData({
+            title: project.title,
+            description: project.description,
+            tech_stack: project.tech_stack ? project.tech_stack.join(', ') : "",
+            link: project.link || "",
+            github: project.github || "",
+            image: project.image || "",
+            order: project.order || 0
+        });
+        setIsAdding(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleCancel = () => {
+        setIsAdding(false);
+        resetForm();
+    };
+
+    const resetForm = () => {
         setFormData({ title: "", description: "", tech_stack: "", link: "", github: "", image: "", order: 0 });
+        setEditId(null);
     };
 
     return (
@@ -45,7 +79,10 @@ const ManageProjects = () => {
                         <h1 className="text-3xl font-mono font-bold text-gray-900 dark:text-white">Manage Projects</h1>
                     </div>
                     <button
-                        onClick={() => setIsAdding(!isAdding)}
+                        onClick={() => {
+                            if (isAdding) handleCancel();
+                            else setIsAdding(true);
+                        }}
                         className="btn-sharp bg-black text-white dark:bg-white dark:text-black px-4 py-2 flex items-center gap-2"
                     >
                         <Plus size={16} /> {isAdding ? "Cancel" : "Add New"}
@@ -54,7 +91,7 @@ const ManageProjects = () => {
 
                 {isAdding && (
                     <div className="bg-white dark:bg-gray-800 p-6 border border-gray-200 dark:border-gray-700 mb-8 shadow-sm transition-colors">
-                        <h2 className="text-lg font-bold font-mono mb-4 text-gray-900 dark:text-white">Add New Project</h2>
+                        <h2 className="text-lg font-bold font-mono mb-4 text-gray-900 dark:text-white">{editId ? "Edit Project" : "Add New Project"}</h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
@@ -125,8 +162,9 @@ const ManageProjects = () => {
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 />
                             </div>
-                            <div className="flex justify-end">
-                                <button type="submit" className="btn-sharp bg-black text-white dark:bg-white dark:text-black">Save Project</button>
+                            <div className="flex justify-end gap-2">
+                                <button type="button" onClick={handleCancel} className="btn-sharp border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white">Cancel</button>
+                                <button type="submit" className="btn-sharp bg-black text-white dark:bg-white dark:text-black">{editId ? "Update" : "Save"} Project</button>
                             </div>
                         </form>
                     </div>
@@ -134,13 +172,16 @@ const ManageProjects = () => {
 
                 <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 transition-colors">
                     {projects && projects.map((proj) => (
-                        <div key={proj.id} className="p-4 border-b border-gray-100 dark:border-gray-700 last:border-0 flex justify-between items-start hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                        <div key={proj.id} className="p-4 border-b border-gray-100 dark:border-gray-700 last:border-0 flex justify-between items-start hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer" onClick={() => handleEdit(proj)}>
                             <div className="flex gap-4">
                                 {proj.image && (
                                     <img src={proj.image} alt={proj.title} className="w-16 h-16 object-cover bg-gray-100 dark:bg-gray-700" />
                                 )}
                                 <div>
-                                    <h3 className="font-bold font-mono text-lg text-gray-900 dark:text-white">{proj.title}</h3>
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="font-bold font-mono text-lg text-gray-900 dark:text-white">{proj.title}</h3>
+                                        <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-gray-500 dark:text-gray-400">Order: {proj.order || 0}</span>
+                                    </div>
                                     <div className="text-sm text-gray-600 dark:text-gray-400 line-clamp-1">{proj.description}</div>
                                     <div className="flex gap-1 mt-1">
                                         {proj.tech_stack && proj.tech_stack.map((t, i) => (
@@ -150,7 +191,10 @@ const ManageProjects = () => {
                                 </div>
                             </div>
                             <button
-                                onClick={() => deleteDocument(proj.id)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteDocument(proj.id);
+                                }}
                                 className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                                 title="Delete"
                             >

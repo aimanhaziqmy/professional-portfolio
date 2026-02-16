@@ -6,23 +6,53 @@ import { Link } from "react-router-dom";
 
 const ManageSkills = () => {
     const { documents: skills, error } = useCollection("skills");
-    const { addDocument, deleteDocument } = useFirestore("skills");
+    const { addDocument, deleteDocument, updateDocument } = useFirestore("skills");
 
     const [isAdding, setIsAdding] = useState(false);
+    const [editId, setEditId] = useState(null);
     const [formData, setFormData] = useState({
         title: "",
         items: "" // comma separated
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const itemsArray = formData.items.split(',').map(item => item.trim()).filter(item => item !== "");
-        addDocument({
+
+        const skillData = {
             title: formData.title,
             items: itemsArray
-        });
+        };
+
+        if (editId) {
+            await updateDocument(editId, skillData);
+            setEditId(null);
+        } else {
+            await addDocument(skillData);
+        }
+
         setIsAdding(false);
+        resetForm();
+    };
+
+    const handleEdit = (category) => {
+        setEditId(category.id);
+        setFormData({
+            title: category.title,
+            items: category.items ? category.items.join(', ') : ""
+        });
+        setIsAdding(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleCancel = () => {
+        setIsAdding(false);
+        resetForm();
+    };
+
+    const resetForm = () => {
         setFormData({ title: "", items: "" });
+        setEditId(null);
     };
 
     return (
@@ -36,7 +66,10 @@ const ManageSkills = () => {
                         <h1 className="text-3xl font-mono font-bold text-gray-900 dark:text-white">Manage Skills</h1>
                     </div>
                     <button
-                        onClick={() => setIsAdding(!isAdding)}
+                        onClick={() => {
+                            if (isAdding) handleCancel();
+                            else setIsAdding(true);
+                        }}
                         className="btn-sharp bg-black text-white dark:bg-white dark:text-black px-4 py-2 flex items-center gap-2"
                     >
                         <Plus size={16} /> {isAdding ? "Cancel" : "Add Category"}
@@ -45,6 +78,7 @@ const ManageSkills = () => {
 
                 {isAdding && (
                     <div className="bg-white dark:bg-gray-800 p-6 border border-gray-200 dark:border-gray-700 mb-8 shadow-sm transition-colors">
+                        <h2 className="text-lg font-bold font-mono mb-4 text-gray-900 dark:text-white">{editId ? "Edit Category" : "Add New Category"}</h2>
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-mono mb-1 text-gray-700 dark:text-gray-300">Category Title</label>
@@ -68,8 +102,9 @@ const ManageSkills = () => {
                                     onChange={(e) => setFormData({ ...formData, items: e.target.value })}
                                 />
                             </div>
-                            <div className="flex justify-end">
-                                <button type="submit" className="btn-sharp bg-black text-white dark:bg-white dark:text-black">Save Category</button>
+                            <div className="flex justify-end gap-2">
+                                <button type="button" onClick={handleCancel} className="btn-sharp border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-white">Cancel</button>
+                                <button type="submit" className="btn-sharp bg-black text-white dark:bg-white dark:text-black">{editId ? "Update" : "Save"} Category</button>
                             </div>
                         </form>
                     </div>
@@ -77,7 +112,7 @@ const ManageSkills = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {skills && skills.map((cat) => (
-                        <div key={cat.id} className="bg-white dark:bg-gray-800 p-6 border border-gray-200 dark:border-gray-700 relative group transition-colors">
+                        <div key={cat.id} className="bg-white dark:bg-gray-800 p-6 border border-gray-200 dark:border-gray-700 relative group transition-colors cursor-pointer hover:shadow-md" onClick={() => handleEdit(cat)}>
                             <h3 className="font-bold font-mono text-lg mb-4 border-b border-gray-100 dark:border-gray-700 pb-2 text-gray-900 dark:text-white">{cat.title}</h3>
                             <div className="flex flex-wrap gap-2">
                                 {cat.items && cat.items.map((item, i) => (
@@ -85,8 +120,12 @@ const ManageSkills = () => {
                                 ))}
                             </div>
                             <button
-                                onClick={() => deleteDocument(cat.id)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    deleteDocument(cat.id);
+                                }}
                                 className="absolute top-4 right-4 p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 opacity-0 group-hover:opacity-100 transition-all"
+                                title="Delete"
                             >
                                 <Trash2 size={18} />
                             </button>
