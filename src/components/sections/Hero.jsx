@@ -7,7 +7,7 @@ const Hero = () => {
                 <div className="max-w-3xl">
                     <div className="inline-flex items-center space-x-2 text-sm font-mono text-gray-500 dark:text-gray-400 mb-6 bg-gray-50 dark:bg-gray-900 px-3 py-1 border border-gray-100 dark:border-gray-800">
                         <Terminal size={14} />
-                        <span>Data Engineering • Infrastructure • Developer</span>
+                        <span>Data Engineering • Infra • DataOps</span>
                     </div>
 
                     <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold font-mono tracking-tighter mb-6 leading-tight text-gray-900 dark:text-white">
@@ -18,7 +18,7 @@ const Hero = () => {
                     </h1>
 
                     <p className="text-xl sm:text-2xl text-gray-600 dark:text-gray-400 mb-8 font-sans font-light leading-relaxed max-w-2xl">
-                        A Data Engineer based in Malaysia, specializing in building robust infrastructure and scalable Data solutions.
+                        A Data Engineer based in Malaysia, specializing in building scalable data solutions and robust data infrastructure.
                         Currently evolving at the intersection of Data Engineering and System Architecture.
                     </p>
 
