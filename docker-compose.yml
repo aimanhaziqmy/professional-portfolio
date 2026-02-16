@@ -1,0 +1,8 @@
+services:
+  portfolio:
+    build: .
+    ports:
+      - "8080:80"
+    container_name: aiman-portfolio
+    restart: always
+    
