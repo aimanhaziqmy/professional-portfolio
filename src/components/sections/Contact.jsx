@@ -19,9 +19,9 @@ const Contact = () => {
                 </a>
 
                 <div className="mt-16 flex justify-center space-x-8 text-gray-500 font-mono text-sm">
-                    <a href="https://github.com/aimanhaziq" className="hover:text-white transition-colors">GITHUB</a>
-                    <a href="https://linkedin.com/in/aimanhaziq" className="hover:text-white transition-colors">LINKEDIN</a>
-                    <a href="https://twitter.com" className="hover:text-white transition-colors">TWITTER</a>
+                    <a href="https://github.com/aimanhaziqmy" className="hover:text-white transition-colors">GITHUB</a>
+                    <a href="https://linkedin.com/in/aimanhaziqmy" className="hover:text-white transition-colors">LINKEDIN</a>
+                    <a href="https://aimanhaziq.my" className="hover:text-white transition-colors">BLOG</a>
                 </div>
             </div>
         </Section>
