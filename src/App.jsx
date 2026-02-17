@@ -10,6 +10,7 @@ import ManageProjects from "./pages/admin/ManageProjects";
 import ManageSkills from "./pages/admin/ManageSkills";
 import ManageEducation from "./pages/admin/ManageEducation";
 import ManagePublications from "./pages/admin/ManagePublications";
+import ManageCertifications from "./pages/admin/ManageCertifications";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
               <Route path="skills" element={<ManageSkills />} />
               <Route path="education" element={<ManageEducation />} />
               <Route path="publications" element={<ManagePublications />} />
+              <Route path="certifications" element={<ManageCertifications />} />
             </Route>
           </Routes>
         </Router>
