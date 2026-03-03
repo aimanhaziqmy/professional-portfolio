@@ -4,8 +4,12 @@ import './index.css'
 import App from './App.jsx'
 
 const rootElement = document.getElementById('root');
-if (rootElement.hasChildNodes()) {
-  hydrateRoot(rootElement, <StrictMode><App /></StrictMode>);
-} else {
-  createRoot(rootElement).render(<StrictMode><App /></StrictMode>);
-}
+
+// Because Firebase loads dynamic content asynchronously, hydration will always mismatch 
+// and cause duplicate elements in React 18. We clear the SEO DOM and mount normally.
+rootElement.innerHTML = '';
+createRoot(rootElement).render(
+  <StrictMode>
+    <App />
+  </StrictMode>
+);
